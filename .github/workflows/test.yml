@@ -1,0 +1,40 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint_and_fmt:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        deno: [v1.x]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno }}
+      - name: Check formatting
+        run: deno fmt --check
+      - name: Lint files
+        run: deno lint
+      - name: Lint documentation
+        run: deno doc --lint **/*.ts
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        deno: [v1.x, canary]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno }}
+      - name: Run unit tests on Deno
+        run: deno test --doc
